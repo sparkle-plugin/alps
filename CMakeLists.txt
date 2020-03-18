@@ -68,10 +68,11 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # third-party libraries
 set(GTEST_ROOT ${PROJECT_SOURCE_DIR}/third-party/gtest)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-add_subdirectory(third-party)
+add_subdirectory(third-party/gtest)
+add_subdirectory(third-party/gflags)
+add_subdirectory(third-party/libbacktrace)
 
 include_directories(${PROJECT_SOURCE_DIR}/third-party/gtest/include)
-include_directories(${PROJECT_SOURCE_DIR}/third-party/yaml-cpp-0.5.2/include)
 include_directories(${PROJECT_SOURCE_DIR}/third-party/libbacktrace)
 
 # library source 
