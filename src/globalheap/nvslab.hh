@@ -44,7 +44,7 @@ struct nvSlabHeader {
 
     // total size of the fixed part of the header
     static size_t size_of() {
-        return sizeof(header_size) + sizeof(sizeclass) + sizeof(nblocks) + sizeof(Slab*);
+        return sizeof(header_size) + sizeof(sizeclass) + 2 + sizeof(nblocks) + 4 + sizeof(Slab*);
     }
 
     static RRegion::TPtr<nvSlabHeader> make(RRegion::TPtr<nvSlabHeader> header, size_t slab_size, int sizeclass)
