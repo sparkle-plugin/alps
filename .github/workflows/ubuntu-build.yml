@@ -28,3 +28,9 @@ jobs:
         cd build/
         cmake .. -DTARGET_ARCH_MEM=CC-NUMA -DCMAKE_BUILD_TYPE=Debug
         make
+    - name: test globalheap
+      run: |
+        cd build/test/unit/globalheap
+        pwd
+        ./test_globalheap
+        
