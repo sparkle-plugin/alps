@@ -22,7 +22,7 @@
 namespace alps {
 
 struct DebugOptions: public Externalizable {
-    std::string kDefaultLogFilename = "sample.log";
+    std::string kDefaultLogFilename = "/dev/stderr";
     std::string kDefaultLogLevel = "error";
 
     /**
