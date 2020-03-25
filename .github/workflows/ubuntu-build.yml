@@ -1,0 +1,37 @@
+name: alps Continuous Build
+
+on: [push, pull_request]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: install packages and libraries
+      run: |
+        sudo apt update
+        sudo apt install cmake git python g++
+        sudo apt install libgtest-dev libgoogle-glog-dev numactl libconfig-dev libattr1-dev
+        sudo apt install libyaml-cpp-dev attr libtbb2 libtbb-dev python-dev bzip2 
+        sudo apt install google-perftools libgoogle-perftools-dev libgoogle-perftools4
+        sudo apt install libgflags-dev libboost-all-dev
+
+    - name: build alps
+      run: |
+        mkdir build/
+        cd build/
+        cmake .. -DTARGET_ARCH_MEM=CC-NUMA -DCMAKE_BUILD_TYPE=Debug
+        make
+    - name: test globalheap
+      run: |
+        cd build/test/unit/globalheap
+        pwd
+        ./test_globalheap
+        
+        
