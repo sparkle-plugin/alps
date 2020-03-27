@@ -1,4 +1,4 @@
-# 
+#
 # (c) Copyright 2016 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +14,22 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.0.2)
-project(alps)
-set(ALPS_PROJECT_VERSION 0.1.0)
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+cmake_minimum_required(VERSION 3.8.2)
+project(alps VERSION 0.1.0)
 
 include(FeatureSummary)
 include(cmake/internal_utils.cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# compiler flags for all build types
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # compiler flags for different build types
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O3")
 
 if( NOT CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE Debug CACHE STRING
-       "Choose the type of build, options are: None Debug Release RelWithDebInfo
-MinSizeRel."
-       FORCE )
+  set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
@@ -42,40 +37,44 @@ message(STATUS "Configuring build type: ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
 
-
 # configuration based on target architecture
-if(NOT TARGET_ARCH_MEM)
-	set(TARGET_ARCH_MEM "CC-NUMA" CACHE STRING "" FORCE)
-	message(STATUS "WARNING: Undefined target memory architecture.")
-    message(STATUS "WARNING: You can define target memory architecture through command line option: -DTARGET_ARCH_MEM=target_arch_mem")
-	message(STATUS "WARNING: Defaulting to: " ${TARGET_ARCH_MEM})
+if( NOT TARGET_ARCH_MEM )
+  set(TARGET_ARCH_MEM "CC-NUMA" CACHE STRING "" FORCE)
+  message(STATUS "WARNING: Undefined target memory architecture.")
+  message(STATUS "WARNING: You can define target memory architecture through command line option: -DTARGET_ARCH_MEM=target_arch_mem")
+  message(STATUS "WARNING: Defaulting to: " ${TARGET_ARCH_MEM})
 endif()
 set_arch_conf(${TARGET_ARCH_MEM} ARCH_LIBS ARCH_DEFS)
 
-# check for dependencies 
-find_package(Boost 1.36.0 REQUIRED COMPONENTS serialization log system program_options filesystem thread)
+# check for dependencies
+find_package(Boost 1.65.0 REQUIRED COMPONENTS serialization log system program_options filesystem thread)
 find_package(Numa REQUIRED)
 find_package(XATTR REQUIRED)
+find_package(yaml-cpp 0.5.2 REQUIRED)
+find_package(gflags 2.1.2 REQUIRED)
+# TODO: We need to upgrade gtest to the newer system-wide version.
+#       but, there are some incompatibility with embeded gtest.
+#find_package(GTest REQUIRED)
 
 # check for target architecture dependencies
 if(${TARGET_ARCH_MEM} MATCHES "NV-NCC-FAM")
-	find_package(FamAtomic REQUIRED)
+  find_package(FamAtomic REQUIRED)
 endif()
 
-set(TARGETS)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # third-party libraries
 set(GTEST_ROOT ${PROJECT_SOURCE_DIR}/third-party/gtest)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 add_subdirectory(third-party/gtest)
-add_subdirectory(third-party/gflags)
-add_subdirectory(third-party/libbacktrace)
-
 include_directories(${PROJECT_SOURCE_DIR}/third-party/gtest/include)
+
+# We cannot use find_package(libbacktrace)
+# so that boost stacktrace might be a better alternative.
+add_subdirectory(third-party/libbacktrace)
 include_directories(${PROJECT_SOURCE_DIR}/third-party/libbacktrace)
 
-# library source 
+# library source
 add_subdirectory(src)
 
 # examples source
@@ -91,8 +90,8 @@ add_subdirectory(test)
 #
 ###############################################################################
 
-set(CPACK_PACKAGE_VERSION ${ALPS_PROJECT_VERSION})
-set(CPACK_GENERATOR "TGZ")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_GENERATOR "TGZ;DEB;RPM")
 set(CPACK_PACKAGE_NAME "alps")
 set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_CONTACT "Haris Volos -- haris.volos@hpe.com")
